@@ -3,4 +3,6 @@
 ## build
 1. `cmake .`
 2. `make`
-3. `./Main 8080`
+
+## exec
+1. `./Main 8080`

@@ -5,6 +5,8 @@
 #include <string.h> //memset()
 #include <unistd.h> //close()
 
+#include "./includes/func.h"
+
 #define QUEUELIMIT 5
 
 int main(int argc, char** argv) {
@@ -48,6 +50,8 @@ int main(int argc, char** argv) {
         perror("listen() failed.");
         exit(EXIT_FAILURE);
     }
+
+	LOG("test");
 
     while(1) {
 		char buff[1024];

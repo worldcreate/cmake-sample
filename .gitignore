@@ -2,6 +2,8 @@
 
 Main
 
+*.a
+
 # cmake
 CMakeCache.txt
 CMakeFiles

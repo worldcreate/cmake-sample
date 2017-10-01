@@ -65,12 +65,14 @@ int main(int argc, char** argv) {
 		while ((size = read(clitSock , buff, 32)) > 0) {
 			printf("size = %d\n", size);
 			printf("%s", buff);
+			memset(buff, 0, sizeof(buff));
 			if (size < 32) {
 				break;
 			}
+			printf("\n");
 		}
 		
-        printf("connected from %s.\n", inet_ntoa(clitSockAddr.sin_addr));
+        printf("\n\nconnected from %s.\n", inet_ntoa(clitSockAddr.sin_addr));
       close(clitSock);
     }
 

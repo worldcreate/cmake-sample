@@ -9,6 +9,40 @@
 
 #define QUEUELIMIT 5
 
+#define BUF_SIZE 32
+
+int http(int sock) {
+	char buff[1024];
+	int size = 0;
+	while ((size = read(sock , buff, BUF_SIZE)) > 0) {
+		printf("size = %d\n", size);
+		printf("%s", buff);
+		memset(buff, 0, sizeof(buff));
+		if (size < BUF_SIZE) {
+			break;
+		}
+		printf("\n");
+	}
+	return EXIT_SUCCESS;
+}
+
+void spawn_fork(int clitSock, int servSock) {
+
+	pid_t child_pid = fork();
+
+	if (child_pid == -1) {
+		perror("fork() failed.");
+		exit(EXIT_FAILURE);
+	} else if (child_pid == 0) {
+		close(servSock);
+		int ret = http(clitSock);
+		close(clitSock);
+		exit(ret);
+	} else {
+		close(clitSock);
+	}
+}
+
 int main(int argc, char** argv) {
 
 	int servSock; //server socket descripter
@@ -54,29 +88,18 @@ int main(int argc, char** argv) {
 	LOG("test");
 
 	while(1) {
-		char buff[1024];
 		clitLen = sizeof(clitSockAddr);
 		if ((clitSock = accept(servSock, (struct sockaddr *) &clitSockAddr, &clitLen)) < 0) {
 			perror("accept() failed.");
 			exit(EXIT_FAILURE);
 		}
 
-		int size = 0;
-		while ((size = read(clitSock , buff, 32)) > 0) {
-			printf("size = %d\n", size);
-			printf("%s", buff);
-			memset(buff, 0, sizeof(buff));
-			if (size < 32) {
-				break;
-			}
-			printf("\n");
-		}
+		spawn_fork(clitSock, servSock);
 
 		printf("\n\nconnected from %s.\n", inet_ntoa(clitSockAddr.sin_addr));
-	  close(clitSock);
 	}
 
-	return EXIT_SUCCESS;
+	close(servSock);
 
-	return 0;
+	return EXIT_SUCCESS;
 }

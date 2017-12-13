@@ -12,17 +12,17 @@
 #define BUF_SIZE 32
 
 int http(int sock) {
+	char method[32];
 	char buff[1024];
-	int size = 0;
-	while ((size = read(sock , buff, BUF_SIZE)) > 0) {
-		printf("size = %d\n", size);
-		printf("%s", buff);
-		memset(buff, 0, sizeof(buff));
-		if (size < BUF_SIZE) {
-			break;
-		}
-		printf("\n");
-	}
+	char version[32];
+
+	FILE *fp = fdopen(sock, "r");
+
+	fscanf(fp, "%s %s %s\n", method, buff, version);
+	printf("%s\n", method);
+
+	fclose(fp);
+
 	return EXIT_SUCCESS;
 }
 
@@ -96,7 +96,6 @@ int main(int argc, char** argv) {
 
 		spawn_fork(clitSock, servSock);
 
-		printf("\n\nconnected from %s.\n", inet_ntoa(clitSockAddr.sin_addr));
 	}
 
 	close(servSock);

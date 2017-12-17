@@ -11,6 +11,40 @@
 
 #define BUF_SIZE 32
 
+int hasprint(char* str) {
+	for (int i = 0; str[i] != '\0'; i++) {
+		if (isprint(str[i]) > 0) {
+			return 1;
+		}
+	}
+	return 0;
+}
+
+void get_header(FILE *fp) {
+	char buff[1024];
+	int ret;
+	while(fgets(buff, 1024, fp) != NULL) {
+		printf("str=%s", buff);
+		printf("%d, %d, %d\n", buff[0], buff[1], buff[2]);
+		printf("size = %d\n", strlen(buff));
+		if (hasprint(buff) == 0) {
+			break;
+		}
+	}
+}
+
+void get_method(int sock) {
+	FILE *fp = fdopen(sock, "w");
+
+
+	fprintf(fp, "HTTP/1.1 200 OK\n");
+	fprintf(fp, "\n");
+	fprintf(fp, "<html><body>test</body></html>\n");
+	printf("get_method\n");
+
+	fclose(fp);
+}
+
 int http(int sock) {
 	char method[32];
 	char buff[1024];
@@ -20,6 +54,15 @@ int http(int sock) {
 
 	fscanf(fp, "%s %s %s\n", method, buff, version);
 	printf("%s\n", method);
+
+	get_header(fp);
+
+	if (strcmp(method, "GET") == 0) {
+		get_method(sock);
+	}
+
+	printf("end\n");
+
 
 	fclose(fp);
 

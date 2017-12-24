@@ -6,27 +6,52 @@
 #include <unistd.h> //close()
 
 #include "./includes/func.h"
+#include "./includes/util.h"
 
 #define QUEUELIMIT 5
 
 #define BUF_SIZE 32
 
-int hasprint(char* str) {
+typedef struct property {
+	char key[1024];
+	char value[1024];
+} property;
+
+/**
+ * headerのプロパティを':'で分割してproperty構造体に詰めて返す
+ */
+property get_property(char* str) {
+	int splitCharaIndex = 0;
+
 	for (int i = 0; str[i] != '\0'; i++) {
-		if (isprint(str[i]) > 0) {
-			return 1;
+		if (str[i] == ':') {
+			splitCharaIndex = i;
+			break;
 		}
 	}
-	return 0;
+
+	str[splitCharaIndex] = '\0';
+	printf("key=%s\n", str);
+
+	char* nextStr = str + (splitCharaIndex + 1);
+	printf("str=%p, nextstr=%p\n", str, nextStr);
+	printf("value=%s\n", nextStr);
+
+	property p;
+	strcpy(p.key, str);
+	strcpy(p.value, nextStr);
+
+	return p;
 }
 
 void get_header(FILE *fp) {
 	char buff[1024];
-	int ret;
 	while(fgets(buff, 1024, fp) != NULL) {
 		printf("str=%s", buff);
-		printf("%d, %d, %d\n", buff[0], buff[1], buff[2]);
 		printf("size = %d\n", strlen(buff));
+		property p = get_property(buff);
+		printf("key = %s\n", p.key);
+		printf("value = %s\n", p.value);
 		if (hasprint(buff) == 0) {
 			break;
 		}
@@ -35,7 +60,6 @@ void get_header(FILE *fp) {
 
 void get_method(int sock) {
 	FILE *fp = fdopen(sock, "w");
-
 
 	fprintf(fp, "HTTP/1.1 200 OK\n");
 	fprintf(fp, "\n");

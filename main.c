@@ -5,6 +5,8 @@
 #include <string.h> //memset()
 #include <unistd.h> //close()
 
+#include <list.h>
+
 #include "./includes/func.h"
 #include "./includes/util.h"
 
@@ -48,7 +50,8 @@ void get_header(FILE *fp) {
 	char buff[1024];
 	while(fgets(buff, 1024, fp) != NULL) {
 		printf("str=%s", buff);
-		printf("size = %d\n", strlen(buff));
+		printf("size = %d\n", (int)strlen(buff));
+		// TODO propertyを保持するような可変長の仕組みがほしい
 		property p = get_property(buff);
 		printf("key = %s\n", p.key);
 		printf("value = %s\n", p.value);
@@ -111,6 +114,8 @@ void spawn_fork(int clitSock, int servSock) {
 }
 
 int main(int argc, char** argv) {
+
+	lib_hello();
 
 	int servSock; //server socket descripter
 	int clitSock; //client socket descripter

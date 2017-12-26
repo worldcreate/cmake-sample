@@ -114,9 +114,6 @@ void spawn_fork(int clitSock, int servSock) {
 }
 
 int main(int argc, char** argv) {
-
-	lib_hello();
-
 	int servSock; //server socket descripter
 	int clitSock; //client socket descripter
 	struct sockaddr_in servSockAddr; //server internet socket address

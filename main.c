@@ -17,12 +17,13 @@
 typedef struct property {
 	char key[1024];
 	char value[1024];
+	list_head list;
 } property;
 
 /**
  * headerのプロパティを':'で分割してproperty構造体に詰めて返す
  */
-property get_property(char* str) {
+property* get_property(char* str) {
 	int splitCharaIndex = 0;
 
 	for (int i = 0; str[i] != '\0'; i++) {
@@ -39,28 +40,41 @@ property get_property(char* str) {
 	printf("str=%p, nextstr=%p\n", str, nextStr);
 	printf("value=%s\n", nextStr);
 
-	property p;
-	strcpy(p.key, str);
-	strcpy(p.value, nextStr);
+	property *p = (property*)malloc(sizeof(p));
+	strcpy(p->key, str);
+	strcpy(p->value, nextStr);
 
 	return p;
 }
 
-void get_header(FILE *fp) {
+/**
+ * リクエストのheaderを取得してListに詰めてheadのポインタを返す
+ */
+list_head get_header(FILE *fp) {
+	list_head head;
+	list_init(&head);
 	char buff[1024];
 	while(fgets(buff, 1024, fp) != NULL) {
-		printf("str=%s", buff);
-		printf("size = %d\n", (int)strlen(buff));
-		// TODO propertyを保持するような可変長の仕組みがほしい
-		property p = get_property(buff);
-		printf("key = %s\n", p.key);
-		printf("value = %s\n", p.value);
 		if (hasprint(buff) == 0) {
 			break;
 		}
+		property *p = get_property(buff);
+		list_push(&head, &(p->list));
 	}
+	printf("List TEST\n");
+	list_head* node;
+	list_for_each(node, &head) {
+		property *p = list_entry(node, property, list);
+		printf("key = %s\n", p->key);
+		printf("value = %s\n", p->value);
+		free(p);
+	}
+	return head;
 }
 
+/**
+ * GETメソッドの場合のレスポンスの処理をする
+ */
 void get_method(int sock) {
 	FILE *fp = fdopen(sock, "w");
 
